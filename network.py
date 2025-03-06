@@ -7,6 +7,10 @@ class RestoreNet(nn.Module):
     def __init__(self) -> None:
         super().__init__()
 
+        self.down = models.resnet50(weights=('pretrained', 'ResNet50_Weights.IMAGENET1K_V1'))
+        del self.down.fc
+        del self.down.avgpool
+
         self.conv0 = nn.Conv2d(in_channels=3, out_channels=64, kernel_size=3, stride=1, padding=1)
         self.conv1 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1, padding=1)
         self.conv2 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, stride=1, padding=1)
@@ -23,6 +27,10 @@ class RestoreNet(nn.Module):
         self.upsample = nn.Upsample(scale_factor=2, mode='bicubic')
 
     def forward(self, x: Tensor) -> Tensor:
+        x1 = self.down.layer1(x)
+        x1 = self.down.layer1(x)
+        x2 = self.down.layer2(x1)
+
         x = self.conv0(x)
         x = self.relu(x)
         x = self.pool(x)
@@ -61,4 +69,4 @@ class RestoreNet(nn.Module):
 
 # 测试网络
 if __name__ == '__main__':
-    model = RestoreNet(in_feat_size = 3, out_feat_size = 3)
+    model = RestoreNet()
